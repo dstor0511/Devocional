@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Devocional">
+<meta name="theme-color" content="#0d1117">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Dashboard Devocional</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d1117;--bg2:#161b22;--bg3:#21262d;--border:#30363d;
+  --text:#e6edf3;--text2:#8b949e;--text3:#6e7681;
+  --accent:#58a6ff;--green:#3fb950;--green-bg:#1a2d1a;
+  --red:#f85149;--amber:#d29922;--amber-bg:#2d1f00;
+  --blue-bg:#1a2535;--purple:#bc8cff;--purple-bg:#1e1535;
+  --radius:8px;--radius-lg:12px;
+  --safe-top:env(safe-area-inset-top);
+  --safe-bottom:env(safe-area-inset-bottom);
+}
+body{background:var(--bg);color:var(--text);font-family:"Ubuntu",-apple-system,sans-serif;min-height:100vh;-webkit-tap-highlight-color:transparent;overflow-x:hidden}
+
+/* ── SCREENS ── */
+.screen{display:none;min-height:100vh}
+.screen.active{display:flex}
+
+/* ── PIN SCREEN ── */
+#screen-lock,#screen-setup{
+  flex-direction:column;align-items:center;justify-content:center;
+  padding:calc(var(--safe-top) + 2rem) 1.5rem calc(var(--safe-bottom) + 2rem);
+  gap:2rem;
+}
+.pin-logo{font-size:3rem;line-height:1}
+.pin-title{font-size:1.2rem;font-weight:500;text-align:center}
+.pin-subtitle{font-size:.875rem;color:var(--text2);text-align:center;margin-top:-1.5rem}
+.pin-dots{display:flex;gap:16px;align-items:center;justify-content:center;height:32px}
+.pin-dot{width:14px;height:14px;border-radius:50%;background:var(--bg3);border:2px solid var(--border);transition:background .15s,border-color .15s}
+.pin-dot.filled{background:var(--accent);border-color:var(--accent)}
+.pin-dot.error{background:var(--red);border-color:var(--red)}
+.pin-dot.success{background:var(--green);border-color:var(--green)}
+.numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:100%;max-width:280px}
+.num-btn{
+  background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);
+  color:var(--text);font-size:1.4rem;font-family:inherit;font-weight:500;
+  height:70px;cursor:pointer;transition:background .1s,transform .1s;
+  display:flex;align-items:center;justify-content:center;
+}
+.num-btn:active{background:var(--bg3);transform:scale(.95)}
+.num-btn.del{font-size:1.2rem;color:var(--text2)}
+.num-btn.empty{background:none;border:none;cursor:default}
+.pin-error{font-size:.8rem;color:var(--red);text-align:center;min-height:20px;transition:opacity .2s}
+.pin-link{font-size:.8rem;color:var(--text3);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.pin-link:active{color:var(--text2)}
+.lockout-msg{font-size:.875rem;color:var(--amber);text-align:center}
+
+/* ── APP SCREEN ── */
+#screen-app{
+  flex-direction:column;
+  padding:calc(var(--safe-top) + 1.5rem) 1rem calc(var(--safe-bottom) + 1.5rem);
+}
+.container{max-width:760px;margin:0 auto;width:100%}
+header{margin-bottom:2rem;display:flex;align-items:center;justify-content:space-between}
+.header-left h1{font-size:1.4rem;font-weight:500}
+.header-left p{font-size:.8rem;color:var(--text2);margin-top:3px}
+.btn-lock{background:none;border:1px solid var(--border);border-radius:var(--radius);color:var(--text3);padding:6px 12px;font-size:12px;font-family:inherit;cursor:pointer}
+.btn-lock:active{background:var(--bg2)}
+
+.section-label{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:10px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:2rem}
+.stat{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:.875rem}
+.stat-label{font-size:11px;color:var(--text2);margin-bottom:5px}
+.stat-value{font-size:1.6rem;font-weight:500;line-height:1}
+.stat-sub{font-size:10px;color:var(--text3);margin-top:4px}
+.form-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.1rem;margin-bottom:2rem}
+.form-top{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.form-top-actions{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end;margin-bottom:12px}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:11px;color:var(--text2)}
+input[type="date"],input[type="number"],input[type="text"],select{
+  background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);
+  color:var(--text);padding:9px 10px;font-size:14px;font-family:inherit;width:100%;outline:none;-webkit-appearance:none;
+}
+select option{background:var(--bg3);color:var(--text)}
+input:focus,select:focus{border-color:var(--accent)}
+.check-row{display:flex;align-items:center;gap:8px;padding:9px 0}
+.check-row input[type="checkbox"]{accent-color:var(--green);width:18px;height:18px;cursor:pointer;flex-shrink:0}
+.check-row label{font-size:14px;cursor:pointer}
+.readings-section{display:none}
+.readings-section.visible{display:block}
+.reading-row{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end;margin-bottom:8px}
+.btn-icon{background:none;border:1px solid var(--border);border-radius:var(--radius);color:var(--text3);width:38px;height:38px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.btn-icon:active{background:var(--bg3)}
+.btn-add-reading{background:none;border:1px dashed var(--border);border-radius:var(--radius);color:var(--text3);padding:9px 14px;font-size:13px;font-family:inherit;cursor:pointer;width:100%;margin-top:4px;text-align:center}
+.btn-add-reading:active{background:var(--bg3)}
+.passage-hint{font-size:10px;color:var(--text3);margin-top:2px}
+button.primary{background:var(--accent);color:#0d1117;border:none;border-radius:var(--radius);padding:10px 18px;font-size:14px;font-family:inherit;font-weight:500;cursor:pointer;white-space:nowrap;width:100%}
+button.primary:active{opacity:.8}
+button.secondary{background:var(--bg3);color:var(--text);border:1px solid var(--border);border-radius:var(--radius);padding:10px 16px;font-size:13px;font-family:inherit;cursor:pointer;white-space:nowrap}
+button.secondary:active{opacity:.8}
+.entries{display:flex;flex-direction:column;gap:6px}
+.entry{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.entry-left{display:flex;flex-direction:column;gap:4px;flex:1;min-width:0}
+.entry-date{font-size:13px;font-weight:500}
+.entry-readings{display:flex;flex-direction:column;gap:3px;margin-top:3px}
+.entry-reading-line{font-size:12px;color:var(--text2);display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.entry-right{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0}
+.entry-badges{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.badge{font-size:10px;padding:3px 8px;border-radius:20px;font-weight:500;white-space:nowrap}
+.badge-read{background:var(--green-bg);color:var(--green)}
+.badge-noread{background:var(--bg3);color:var(--text3)}
+.badge-prayer{background:var(--blue-bg);color:var(--accent)}
+.badge-book{background:var(--purple-bg);color:var(--purple)}
+.badge-ot{background:var(--amber-bg);color:var(--amber)}
+.del{background:none;border:none;cursor:pointer;color:var(--text3);font-size:18px;padding:4px;line-height:1;flex-shrink:0}
+.del:active{color:var(--red)}
+.empty{text-align:center;padding:2.5rem 1rem;color:var(--text3);font-size:14px;border:1px dashed var(--border);border-radius:var(--radius-lg)}
+.top-actions{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
+
+/* modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:100;align-items:flex-end;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg) var(--radius-lg) 0 0;padding:1.5rem 1.25rem calc(var(--safe-bottom) + 1.5rem);width:100%;max-width:500px}
+.modal h2{font-size:1rem;font-weight:500;margin-bottom:1rem}
+.modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.25rem}
+.modal-actions{display:flex;gap:10px}
+.modal-actions button{flex:1}
+
+/* change pin modal */
+#change-pin-modal .modal{max-width:340px;border-radius:var(--radius-lg);margin:auto}
+#change-pin-modal{align-items:center}
+
+/* toast */
+.toast{position:fixed;bottom:calc(var(--safe-bottom) + 80px);left:50%;transform:translateX(-50%) translateY(20px);background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 18px;font-size:13px;color:var(--text);opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;white-space:nowrap;z-index:200}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+/* ── PRINT ── */
+@media print{
+  body{background:white!important;color:#111!important;font-family:"Ubuntu",Georgia,serif}
+  .screen{display:none!important}
+  .print-view{display:block!important;padding:1.2cm 1.8cm}
+  .print-header{border-bottom:2px solid #111;padding-bottom:.6rem;margin-bottom:1.2rem}
+  .print-header h1{font-size:1.5rem;font-weight:700}
+  .print-header p{font-size:.8rem;color:#555;margin-top:3px}
+  .print-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:1.2rem}
+  .print-stat{border:1px solid #ccc;border-radius:6px;padding:.65rem;text-align:center}
+  .print-stat-label{font-size:9px;color:#666;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+  .print-stat-value{font-size:1.4rem;font-weight:700}
+  .print-stat-sub{font-size:9px;color:#999;margin-top:2px}
+  .print-section{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:#888;margin:1rem 0 6px}
+  .print-insights{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:.8rem}
+  .print-insight{border:1px solid #ddd;border-radius:5px;padding:.6rem}
+  .print-insight-label{font-size:9px;color:#888;margin-bottom:2px}
+  .print-insight-value{font-size:12px;font-weight:600}
+  table.pt{width:100%;border-collapse:collapse;font-size:11px}
+  table.pt th{background:#f0f0f0;color:#333;padding:6px 10px;text-align:left;font-size:10px;font-weight:600;border-bottom:1px solid #ccc}
+  table.pt td{padding:6px 10px;border-bottom:1px solid #eee;vertical-align:top}
+  table.pt tr.alt td{background:#f9f9f9}
+  .pr{color:#166534;font-weight:500}.pn{color:#999}.pp{color:#1e3a5f;font-weight:500}.pb{color:#4c1d95}
+  .pbar{height:6px;background:#e0e7ff;border-radius:3px;display:inline-block}
+  .pbar-fill{height:6px;background:#4f46e5;border-radius:3px;display:inline-block}
+  .print-books{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+  .print-book-item{border:1px solid #eee;border-radius:4px;padding:5px 8px;display:flex;justify-content:space-between}
+  .print-book-name{font-size:11px;font-weight:500}
+  .print-book-count{font-size:10px;color:#4f46e5;font-weight:600}
+  .print-footer{margin-top:1.5rem;font-size:9px;color:#bbb;border-top:1px solid #eee;padding-top:.4rem}
+}
+.print-view{display:none}
+</style>
+</head>
+<body>
+
+<!-- ── SETUP PIN ── -->
+<div class="screen" id="screen-setup">
+  <div class="pin-logo">📖</div>
+  <div class="pin-title" id="setup-title">Crea tu PIN</div>
+  <div class="pin-subtitle" id="setup-subtitle">Elige un PIN de 4 dígitos para proteger tu devocional</div>
+  <div class="pin-dots" id="setup-dots">
+    <div class="pin-dot"></div><div class="pin-dot"></div>
+    <div class="pin-dot"></div><div class="pin-dot"></div>
+  </div>
+  <div class="pin-error" id="setup-error"></div>
+  <div class="numpad" id="setup-pad"></div>
+</div>
+
+<!-- ── LOCK SCREEN ── -->
+<div class="screen" id="screen-lock">
+  <div class="pin-logo">🔒</div>
+  <div class="pin-title">Ingresa tu PIN</div>
+  <div class="pin-dots" id="lock-dots">
+    <div class="pin-dot"></div><div class="pin-dot"></div>
+    <div class="pin-dot"></div><div class="pin-dot"></div>
+  </div>
+  <div class="pin-error" id="lock-error"></div>
+  <div class="lockout-msg" id="lockout-msg"></div>
+  <div class="numpad" id="lock-pad"></div>
+  <span class="pin-link" id="forgot-link" onclick="showForgotInfo()">¿Olvidaste tu PIN?</span>
+</div>
+
+<!-- ── APP ── -->
+<div class="screen" id="screen-app">
+<div class="container">
+  <header>
+    <div class="header-left">
+      <h1>📖 Devocional</h1>
+      <p>Lectura bíblica y seguimiento espiritual</p>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button class="btn-lock" onclick="openChangePinModal()">⚙ PIN</button>
+      <button class="btn-lock" onclick="lockApp()">🔒 Bloquear</button>
+    </div>
+  </header>
+
+  <div class="section-label">resumen</div>
+  <div class="stats">
+    <div class="stat"><div class="stat-label">📖 días leídos</div><div class="stat-value" id="s-read">0</div><div class="stat-sub" id="s-read-sub">de 0</div></div>
+    <div class="stat"><div class="stat-label">🔥 racha</div><div class="stat-value" style="color:var(--red)" id="s-streak">0</div><div class="stat-sub">consecutivos</div></div>
+    <div class="stat"><div class="stat-label">🙏 oración</div><div class="stat-value" id="s-total">0</div><div class="stat-sub">min totales</div></div>
+    <div class="stat"><div class="stat-label">✨ favorito</div><div class="stat-value" style="font-size:.95rem;padding-top:4px" id="s-fav-book">—</div><div class="stat-sub" id="s-fav-sub"></div></div>
+    <div class="stat"><div class="stat-label">📜 AT/NT</div><div class="stat-value" id="s-testament">—</div><div class="stat-sub">testamentos</div></div>
+    <div class="stat"><div class="stat-label">📊 promedio</div><div class="stat-value" id="s-avg">0</div><div class="stat-sub">min/día</div></div>
+  </div>
+
+  <div class="section-label">agregar registro</div>
+  <div class="form-card">
+    <div class="form-top">
+      <div class="field"><label for="f-date">fecha</label><input type="date" id="f-date"></div>
+      <div class="field"><label for="f-prayer">minutos oración</label><input type="number" id="f-prayer" min="0" max="300" value="0"></div>
+    </div>
+    <div class="form-top-actions">
+      <div class="field"><label>&nbsp;</label><div class="check-row"><input type="checkbox" id="f-read" checked onchange="toggleReadFields()"><label for="f-read">leí la Biblia</label></div></div>
+      <div class="field"><label>&nbsp;</label><button class="primary" onclick="addEntry()">Agregar</button></div>
+    </div>
+    <div class="readings-section visible" id="readings-section">
+      <div id="readings-rows"></div>
+      <button class="btn-add-reading" onclick="addReadingRow()">+ agregar otra lectura</button>
+    </div>
+  </div>
+
+  <div class="top-actions">
+    <div class="section-label" style="margin:0">registros</div>
+    <button class="secondary" onclick="openExportModal()">📄 Reporte PDF</button>
+  </div>
+  <div class="entries" id="entries-list"></div>
+</div>
+</div>
+
+<!-- Export modal -->
+<div class="modal-overlay" id="export-modal" onclick="if(event.target===this)closeExportModal()">
+  <div class="modal">
+    <h2>📄 Exportar reporte PDF</h2>
+    <div class="modal-grid">
+      <div class="field"><label for="exp-from">desde</label><input type="date" id="exp-from"></div>
+      <div class="field"><label for="exp-to">hasta</label><input type="date" id="exp-to"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="secondary" onclick="closeExportModal()">Cancelar</button>
+      <button class="primary" onclick="generateReport()">Generar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Change PIN modal -->
+<div class="modal-overlay" id="change-pin-modal" onclick="if(event.target===this)closeChangePinModal()">
+  <div class="modal" style="border-radius:var(--radius-lg);max-width:320px;margin:auto">
+    <h2>🔑 Cambiar PIN</h2>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:1rem">
+      <div class="field"><label>PIN actual</label><input type="password" id="cp-current" maxlength="4" inputmode="numeric" placeholder="••••"></div>
+      <div class="field"><label>PIN nuevo</label><input type="password" id="cp-new" maxlength="4" inputmode="numeric" placeholder="••••"></div>
+      <div class="field"><label>Confirmar nuevo</label><input type="password" id="cp-confirm" maxlength="4" inputmode="numeric" placeholder="••••"></div>
+    </div>
+    <div class="pin-error" id="cp-error" style="margin-bottom:10px"></div>
+    <div class="modal-actions">
+      <button class="secondary" onclick="closeChangePinModal()">Cancelar</button>
+      <button class="primary" onclick="changePin()">Cambiar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="print-view" id="print-view"></div>
+
+<script>
+/* ════════════════════════════════════════
+   CRYPTO
+════════════════════════════════════════ */
+const enc = new TextEncoder();
+const dec = new TextDecoder();
+
+async function hashPin(pin, salt) {
+  const keyMat = await crypto.subtle.importKey('raw', enc.encode(pin), 'PBKDF2', false, ['deriveBits']);
+  const bits = await crypto.subtle.deriveBits(
+    { name:'PBKDF2', salt:new Uint8Array(salt), iterations:150000, hash:'SHA-256' },
+    keyMat, 256
+  );
+  return Array.from(new Uint8Array(bits));
+}
+
+async function deriveKey(pin, salt) {
+  const keyMat = await crypto.subtle.importKey('raw', enc.encode(pin), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey(
+    { name:'PBKDF2', salt:new Uint8Array(salt), iterations:150000, hash:'SHA-256' },
+    keyMat, { name:'AES-GCM', length:256 }, false, ['encrypt','decrypt']
+  );
+}
+
+async function encryptData(data, pin) {
+  const salt = Array.from(crypto.getRandomValues(new Uint8Array(16)));
+  const iv   = Array.from(crypto.getRandomValues(new Uint8Array(12)));
+  const key  = await deriveKey(pin, salt);
+  const ct   = await crypto.subtle.encrypt({ name:'AES-GCM', iv:new Uint8Array(iv) }, key, enc.encode(JSON.stringify(data)));
+  return { salt, iv, ct: Array.from(new Uint8Array(ct)) };
+}
+
+async function decryptData(stored, pin) {
+  const key = await deriveKey(pin, stored.salt);
+  const pt  = await crypto.subtle.decrypt({ name:'AES-GCM', iv:new Uint8Array(stored.iv) }, key, new Uint8Array(stored.ct));
+  return JSON.parse(dec.decode(pt));
+}
+
+/* ════════════════════════════════════════
+   STORAGE KEYS
+════════════════════════════════════════ */
+const K_PIN_HASH    = 'dev_pin_hash';
+const K_PIN_SALT    = 'dev_pin_salt';
+const K_DATA        = 'dev_data_enc';
+const K_PIN_SET     = 'dev_pin_set';
+
+/* ════════════════════════════════════════
+   STATE
+════════════════════════════════════════ */
+let currentPin   = null;
+let entries      = [];
+let failedAttempts = 0;
+let lockoutUntil   = 0;
+
+/* ════════════════════════════════════════
+   SHOW SCREEN
+════════════════════════════════════════ */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+/* ════════════════════════════════════════
+   NUMPAD BUILDER
+════════════════════════════════════════ */
+function buildNumpad(padId, onDigit, onDel) {
+  const pad = document.getElementById(padId);
+  pad.innerHTML = '';
+  [1,2,3,4,5,6,7,8,9,'','0','⌫'].forEach(v => {
+    const btn = document.createElement('button');
+    btn.className = 'num-btn' + (v===''?' empty':v==='⌫'?' del':'');
+    btn.textContent = v;
+    if(v !== '') btn.onclick = () => v === '⌫' ? onDel() : onDigit(String(v));
+    pad.appendChild(btn);
+  });
+}
+
+/* ════════════════════════════════════════
+   SETUP FLOW
+════════════════════════════════════════ */
+let setupStep  = 'create'; // 'create' | 'confirm'
+let setupFirst = '';
+let setupInput = '';
+
+function initSetup() {
+  setupStep = 'create'; setupFirst = ''; setupInput = '';
+  updateSetupUI();
+  buildNumpad('setup-pad', d => setupDigit(d), () => setupDel());
+  showScreen('screen-setup');
+}
+
+function updateSetupUI() {
+  document.getElementById('setup-title').textContent =
+    setupStep === 'create' ? 'Crea tu PIN' : 'Confirma tu PIN';
+  document.getElementById('setup-subtitle').textContent =
+    setupStep === 'create' ? 'Elige un PIN de 4 dígitos' : 'Ingresa el PIN nuevamente';
+  updateDots('setup-dots', setupInput, '');
+  document.getElementById('setup-error').textContent = '';
+}
+
+function setupDigit(d) {
+  if(setupInput.length >= 4) return;
+  setupInput += d;
+  updateDots('setup-dots', setupInput, '');
+  if(setupInput.length === 4) {
+    setTimeout(() => {
+      if(setupStep === 'create') {
+        setupFirst = setupInput; setupInput = '';
+        setupStep = 'confirm'; updateSetupUI();
+      } else {
+        if(setupInput === setupFirst) confirmSetup(setupInput);
+        else {
+          shakeDots('setup-dots', 'error');
+          document.getElementById('setup-error').textContent = 'Los PINs no coinciden. Intenta de nuevo.';
+          setTimeout(() => { setupStep='create'; setupFirst=''; setupInput=''; updateSetupUI(); }, 1200);
+        }
+      }
+    }, 120);
+  }
+}
+function setupDel() { if(setupInput.length>0){ setupInput=setupInput.slice(0,-1); updateDots('setup-dots',setupInput,''); } }
+
+async function confirmSetup(pin) {
+  const salt = Array.from(crypto.getRandomValues(new Uint8Array(16)));
+  const hash = await hashPin(pin, salt);
+  localStorage.setItem(K_PIN_SALT, JSON.stringify(salt));
+  localStorage.setItem(K_PIN_HASH, JSON.stringify(hash));
+  localStorage.setItem(K_PIN_SET, '1');
+  currentPin = pin;
+  shakeDots('setup-dots', 'success');
+  setTimeout(() => { entries = []; saveEntries(); initApp(); }, 500);
+}
+
+/* ════════════════════════════════════════
+   LOCK SCREEN
+════════════════════════════════════════ */
+let lockInput = '';
+
+function initLock() {
+  lockInput = '';
+  updateDots('lock-dots', '', '');
+  document.getElementById('lock-error').textContent = '';
+  document.getElementById('lockout-msg').textContent = '';
+  buildNumpad('lock-pad', d => lockDigit(d), () => lockDel());
+  checkLockout();
+  showScreen('screen-lock');
+}
+
+function lockDigit(d) {
+  if(isLockedOut()) return;
+  if(lockInput.length >= 4) return;
+  lockInput += d;
+  updateDots('lock-dots', lockInput, '');
+  if(lockInput.length === 4) {
+    setTimeout(() => verifyPin(lockInput), 120);
+  }
+}
+function lockDel() { if(lockInput.length>0){ lockInput=lockInput.slice(0,-1); updateDots('lock-dots',lockInput,''); } }
+
+async function verifyPin(pin) {
+  const salt = JSON.parse(localStorage.getItem(K_PIN_SALT));
+  const stored = JSON.parse(localStorage.getItem(K_PIN_HASH));
+  const attempt = await hashPin(pin, salt);
+  const match = attempt.length === stored.length && attempt.every((v,i) => v === stored[i]);
+  if(match) {
+    currentPin = pin;
+    failedAttempts = 0;
+    shakeDots('lock-dots', 'success');
+    await loadEntries();
+    setTimeout(() => initApp(), 400);
+  } else {
+    failedAttempts++;
+    shakeDots('lock-dots', 'error');
+    lockInput = '';
+    if(failedAttempts >= 5) {
+      lockoutUntil = Date.now() + 30000;
+      startLockoutTimer();
+    } else {
+      const left = 5 - failedAttempts;
+      document.getElementById('lock-error').textContent =
+        `PIN incorrecto. ${left} intento${left!==1?'s':''} restante${left!==1?'s':''}.`;
+    }
+    setTimeout(() => updateDots('lock-dots','',''), 600);
+  }
+}
+
+function isLockedOut() { return Date.now() < lockoutUntil; }
+
+function checkLockout() {
+  if(isLockedOut()) startLockoutTimer();
+}
+
+function startLockoutTimer() {
+  const el = document.getElementById('lockout-msg');
+  const errEl = document.getElementById('lock-error');
+  errEl.textContent = '';
+  const tick = () => {
+    const rem = Math.ceil((lockoutUntil - Date.now()) / 1000);
+    if(rem <= 0) { el.textContent=''; lockInput=''; updateDots('lock-dots','',''); return; }
+    el.textContent = `Demasiados intentos. Espera ${rem}s`;
+    setTimeout(tick, 1000);
+  };
+  tick();
+}
+
+function showForgotInfo() {
+  alert('Si olvidaste tu PIN, tendrás que borrar los datos de la app en Ajustes de iOS → Safari → Datos de sitios web. Esto eliminará todos tus registros.');
+}
+
+/* ════════════════════════════════════════
+   DOT HELPERS
+════════════════════════════════════════ */
+function updateDots(id, input, state) {
+  const dots = document.querySelectorAll(`#${id} .pin-dot`);
+  dots.forEach((d,i) => {
+    d.classList.remove('filled','error','success');
+    if(state==='error') d.classList.add('error');
+    else if(state==='success') d.classList.add('success');
+    else if(i < input.length) d.classList.add('filled');
+  });
+}
+
+function shakeDots(id, state) {
+  updateDots(id, '1111', state);
+  const el = document.getElementById(id);
+  el.style.animation = 'none';
+  el.offsetHeight;
+  el.style.animation = 'shake .4s ease';
+}
+
+/* ════════════════════════════════════════
+   CHANGE PIN
+════════════════════════════════════════ */
+function openChangePinModal() {
+  document.getElementById('cp-current').value='';
+  document.getElementById('cp-new').value='';
+  document.getElementById('cp-confirm').value='';
+  document.getElementById('cp-error').textContent='';
+  document.getElementById('change-pin-modal').classList.add('open');
+}
+function closeChangePinModal() { document.getElementById('change-pin-modal').classList.remove('open'); }
+
+async function changePin() {
+  const curr = document.getElementById('cp-current').value;
+  const nw   = document.getElementById('cp-new').value;
+  const conf = document.getElementById('cp-confirm').value;
+  const errEl = document.getElementById('cp-error');
+  if(curr !== currentPin){ errEl.textContent='PIN actual incorrecto.'; return; }
+  if(nw.length !== 4 || !/^\d{4}$/.test(nw)){ errEl.textContent='El PIN debe ser de 4 dígitos.'; return; }
+  if(nw !== conf){ errEl.textContent='Los PINs nuevos no coinciden.'; return; }
+  // re-encrypt data with new PIN
+  const salt = Array.from(crypto.getRandomValues(new Uint8Array(16)));
+  const hash = await hashPin(nw, salt);
+  localStorage.setItem(K_PIN_SALT, JSON.stringify(salt));
+  localStorage.setItem(K_PIN_HASH, JSON.stringify(hash));
+  currentPin = nw;
+  await saveEntries();
+  closeChangePinModal();
+  showToast('✓ PIN cambiado correctamente');
+}
+
+function lockApp() {
+  currentPin = null;
+  initLock();
+}
+
+/* ════════════════════════════════════════
+   DATA: SAVE / LOAD
+════════════════════════════════════════ */
+async function saveEntries() {
+  if(!currentPin) return;
+  const encrypted = await encryptData(entries, currentPin);
+  localStorage.setItem(K_DATA, JSON.stringify(encrypted));
+}
+
+async function loadEntries() {
+  const raw = localStorage.getItem(K_DATA);
+  if(!raw) { entries = []; return; }
+  try {
+    const stored = JSON.parse(raw);
+    entries = await decryptData(stored, currentPin);
+    // migrate old format
+    entries = entries.map(e => {
+      if(!e.readings){ e.readings=e.book?[{book:e.book,passage:e.passage||''}]:[]; delete e.book; delete e.passage; }
+      return e;
+    });
+  } catch(e) { entries = []; }
+}
+
+/* ════════════════════════════════════════
+   BIBLE DATA
+════════════════════════════════════════ */
+const OT=["Génesis","Éxodo","Levítico","Números","Deuteronomio","Josué","Jueces","Rut","1 Samuel","2 Samuel","1 Reyes","2 Reyes","1 Crónicas","2 Crónicas","Esdras","Nehemías","Ester","Job","Salmos","Proverbios","Eclesiastés","Cantares","Isaías","Jeremías","Lamentaciones","Ezequiel","Daniel","Oseas","Joel","Amós","Abdías","Jonás","Miqueas","Nahúm","Habacuc","Sofonías","Hageo","Zacarías","Malaquías"];
+const NT=["Mateo","Marcos","Lucas","Juan","Hechos","Romanos","1 Corintios","2 Corintios","Gálatas","Efesios","Filipenses","Colosenses","1 Tesalonicenses","2 Tesalonicenses","1 Timoteo","2 Timoteo","Tito","Filemón","Hebreos","Santiago","1 Pedro","2 Pedro","1 Juan","2 Juan","3 Juan","Judas","Apocalipsis"];
+const OT_SET=new Set(OT);
+
+function buildSelect(sel){
+  let h=`<select class="r-book">`;
+  h+=`<optgroup label="Antiguo Testamento">`+OT.map(b=>`<option${b===sel?' selected':''}>${b}</option>`).join('')+`</optgroup>`;
+  h+=`<optgroup label="Nuevo Testamento">`+NT.map(b=>`<option${b===sel?' selected':''}>${b}</option>`).join('')+`</optgroup>`;
+  return h+`</select>`;
+}
+
+/* ════════════════════════════════════════
+   READING ROWS
+════════════════════════════════════════ */
+let rowCount=0;
+function addReadingRow(book='',passage=''){
+  const id=rowCount++;
+  const div=document.createElement('div');
+  div.className='reading-row';div.id=`rrow-${id}`;
+  div.innerHTML=`
+    <div class="field">${id===0?'<label>libro</label>':'<label>&nbsp;</label>'}${buildSelect(book)}</div>
+    <div class="field">${id===0?'<label>pasaje</label>':'<label>&nbsp;</label>'}
+      <input type="text" class="r-passage" value="${passage}" placeholder="ej: 1 · 1-3 · 3:16">
+      ${id===0?'<div class="passage-hint">cap · rango · versículo · texto libre</div>':''}
+    </div>
+    <div class="field"><label>&nbsp;</label><button class="btn-icon" onclick="removeReadingRow('rrow-${id}')">✕</button></div>`;
+  document.getElementById('readings-rows').appendChild(div);
+}
+function removeReadingRow(id){ if(document.querySelectorAll('.reading-row').length<=1)return; document.getElementById(id).remove(); }
+function getReadings(){ return[...document.querySelectorAll('.reading-row')].map(r=>({book:r.querySelector('.r-book').value,passage:r.querySelector('.r-passage').value.trim()})).filter(r=>r.book); }
+function clearReadingRows(){ document.getElementById('readings-rows').innerHTML='';rowCount=0;addReadingRow(); }
+function toggleReadFields(){ document.getElementById('readings-section').classList.toggle('visible',document.getElementById('f-read').checked); }
+
+/* ════════════════════════════════════════
+   APP INIT
+════════════════════════════════════════ */
+function initApp() {
+  const today=new Date();
+  document.getElementById('f-date').value=today.toISOString().split('T')[0];
+  if(!document.querySelector('.reading-row')) addReadingRow();
+  showScreen('screen-app');
+  render();
+}
+
+/* ════════════════════════════════════════
+   ENTRIES
+════════════════════════════════════════ */
+async function addEntry(){
+  const date=document.getElementById('f-date').value;
+  if(!date){showToast('Selecciona una fecha');return;}
+  const prayer=parseInt(document.getElementById('f-prayer').value)||0;
+  const read=document.getElementById('f-read').checked;
+  const readings=read?getReadings():[];
+  entries=entries.filter(e=>e.date!==date);
+  entries.push({date,prayer,read,readings});
+  entries.sort((a,b)=>b.date.localeCompare(a.date));
+  document.getElementById('f-prayer').value=0;
+  document.getElementById('f-read').checked=true;
+  document.getElementById('readings-section').classList.add('visible');
+  clearReadingRows();
+  await saveEntries();
+  render();
+  showToast('✓ Registro guardado');
+}
+
+async function deleteEntry(date){
+  if(!confirm('¿Eliminar este registro?'))return;
+  entries=entries.filter(e=>e.date!==date);
+  await saveEntries();
+  render();
+}
+
+/* ════════════════════════════════════════
+   STATS
+════════════════════════════════════════ */
+function calcStreak(data){
+  const rd=data.filter(e=>e.read).map(e=>e.date).sort((a,b)=>b.localeCompare(a));
+  if(!rd.length)return 0;
+  let s=0,ref=new Date();ref.setHours(0,0,0,0);
+  for(let i=0;i<rd.length;i++){const diff=Math.round((ref-new Date(rd[i]+'T00:00:00'))/86400000);if(diff===s)s++;else break;}
+  return s;
+}
+function calcLongestStreak(data){
+  const rd=data.filter(e=>e.read).map(e=>e.date).sort();
+  if(!rd.length)return 0;
+  let max=1,cur=1;
+  for(let i=1;i<rd.length;i++){const diff=Math.round((new Date(rd[i]+'T00:00:00')-new Date(rd[i-1]+'T00:00:00'))/86400000);if(diff===1){cur++;max=Math.max(max,cur);}else cur=1;}
+  return max;
+}
+function bookFreq(data){const f={};data.forEach(e=>(e.readings||[]).forEach(r=>{if(r.book)f[r.book]=(f[r.book]||0)+1;}));return f;}
+function testamentSplit(data){let ot=0,nt=0;data.forEach(e=>(e.readings||[]).forEach(r=>{if(r.book)OT_SET.has(r.book)?ot++:nt++;}));return{ot,nt};}
+function formatDate(s){return new Date(s+'T00:00:00').toLocaleDateString('es-CO',{weekday:'short',day:'numeric',month:'short'});}
+function formatDateShort(s){return new Date(s+'T00:00:00').toLocaleDateString('es-CO',{day:'numeric',month:'short',year:'numeric'});}
+
+/* ════════════════════════════════════════
+   RENDER
+════════════════════════════════════════ */
+function render(){
+  const total=entries.length;
+  const readCount=entries.filter(e=>e.read).length;
+  const totalPrayer=entries.reduce((s,e)=>s+e.prayer,0);
+  const freq=bookFreq(entries);
+  const topBook=Object.entries(freq).sort((a,b)=>b[1]-a[1])[0];
+  const{ot,nt}=testamentSplit(entries);
+  document.getElementById('s-read').textContent=readCount;
+  document.getElementById('s-read-sub').textContent=`de ${total}`;
+  document.getElementById('s-streak').textContent=calcStreak(entries);
+  document.getElementById('s-total').textContent=totalPrayer;
+  document.getElementById('s-avg').textContent=total?Math.round(totalPrayer/total):0;
+  document.getElementById('s-fav-book').textContent=topBook?topBook[0]:'—';
+  document.getElementById('s-fav-sub').textContent=topBook?`${topBook[1]}×`:'';
+  document.getElementById('s-testament').textContent=(ot+nt>0)?`${ot}/${nt}`:'—';
+  const list=document.getElementById('entries-list');
+  if(!entries.length){list.innerHTML='<div class="empty">agrega tu primer registro arriba</div>';return;}
+  list.innerHTML=entries.map(e=>{
+    const readings=(e.readings||[]).filter(r=>r.book);
+    const lines=readings.map(r=>{const isOT=OT_SET.has(r.book);return`<span class="entry-reading-line"><span class="badge ${isOT?'badge-ot':'badge-book'}" style="font-size:9px;padding:2px 6px">${isOT?'AT':'NT'}</span>${r.book}${r.passage?' '+r.passage:''}</span>`;}).join('');
+    return`<div class="entry"><div class="entry-left"><span class="entry-date">${formatDate(e.date)}</span>${lines?`<div class="entry-readings">${lines}</div>`:''}</div><div class="entry-right"><div class="entry-badges"><span class="badge ${e.read?'badge-read':'badge-noread'}">${e.read?'✓ leí':'✗ no'}</span>${e.prayer>0?`<span class="badge badge-prayer">🙏${e.prayer}m</span>`:''}</div><button class="del" onclick="deleteEntry('${e.date}')">✕</button></div></div>`;
+  }).join('');
+}
+
+/* ════════════════════════════════════════
+   EXPORT / REPORT
+════════════════════════════════════════ */
+function openExportModal(){if(!entries.length){showToast('No hay registros');return;}const sorted=[...entries].sort((a,b)=>a.date.localeCompare(b.date));document.getElementById('exp-from').value=sorted[0].date;document.getElementById('exp-to').value=sorted[sorted.length-1].date;document.getElementById('export-modal').classList.add('open');}
+function closeExportModal(){document.getElementById('export-modal').classList.remove('open');}
+
+function generateReport(){
+  const from=document.getElementById('exp-from').value,to=document.getElementById('exp-to').value;
+  if(!from||!to||from>to){showToast('Rango inválido');return;}
+  const data=entries.filter(e=>e.date>=from&&e.date<=to).sort((a,b)=>a.date.localeCompare(b.date));
+  if(!data.length){showToast('Sin registros en ese período');return;}
+  const total=data.length,readCount=data.filter(e=>e.read).length,readPct=Math.round((readCount/total)*100);
+  const totalPrayer=data.reduce((s,e)=>s+e.prayer,0),avgPrayer=Math.round(totalPrayer/total);
+  const maxPrayer=Math.max(...data.map(e=>e.prayer),0);
+  const bestDay=maxPrayer>0?data.find(e=>e.prayer===maxPrayer):null;
+  const{ot,nt}=testamentSplit(data);
+  const freq=bookFreq(data);
+  const topBooks=Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,9);
+  const uniqueBooks=Object.keys(freq).length;
+  const rows=data.map((e,i)=>{const readings=(e.readings||[]).filter(r=>r.book);const rc=readings.length?readings.map(r=>`<span>${OT_SET.has(r.book)?'AT':'NT'} · ${r.book}${r.passage?' '+r.passage:''}</span>`).join('<br>'):'—';const bw=maxPrayer>0?Math.round((e.prayer/maxPrayer)*60):0;return`<tr class="${i%2===1?'alt':''}"><td>${formatDateShort(e.date)}</td><td class="${e.read?'pr':'pn'}">${e.read?'✓':'✗'}</td><td class="pb">${rc}</td><td class="${e.prayer>0?'pp':'pn'}">${e.prayer>0?e.prayer+' min':'—'}</td><td><div style="width:60px;height:6px;background:#e0e7ff;border-radius:3px"><div style="width:${bw}px;height:6px;background:#4f46e5;border-radius:3px"></div></div></td></tr>`;}).join('');
+  const booksHtml=topBooks.length?`<div class="print-section">libros más leídos</div><div class="print-books">${topBooks.map(([b,c])=>`<div class="print-book-item"><span class="print-book-name">${b}</span><span class="print-book-count">${c}×</span></div>`).join('')}</div>`:'';
+  document.getElementById('print-view').innerHTML=`<div class="print-header"><h1>📖 Reporte Devocional</h1><p>Período: ${formatDateShort(from)} — ${formatDateShort(to)}</p></div><div class="print-section">resumen</div><div class="print-stats"><div class="print-stat"><div class="print-stat-label">Días registrados</div><div class="print-stat-value">${total}</div></div><div class="print-stat"><div class="print-stat-label">Días leídos</div><div class="print-stat-value">${readCount}</div><div class="print-stat-sub">${readPct}%</div></div><div class="print-stat"><div class="print-stat-label">Total oración</div><div class="print-stat-value">${totalPrayer}</div><div class="print-stat-sub">minutos</div></div><div class="print-stat"><div class="print-stat-label">Promedio</div><div class="print-stat-value">${avgPrayer}</div><div class="print-stat-sub">min/día</div></div></div><div class="print-section">datos adicionales</div><div class="print-insights"><div class="print-insight"><div class="print-insight-label">Racha más larga</div><div class="print-insight-value">🔥 ${calcLongestStreak(data)} días</div></div><div class="print-insight"><div class="print-insight-label">Días sin lectura</div><div class="print-insight-value">📌 ${total-readCount}</div></div><div class="print-insight"><div class="print-insight-label">Mayor oración</div><div class="print-insight-value">🙏 ${maxPrayer} min${bestDay?' ('+formatDateShort(bestDay.date)+')':''}</div></div><div class="print-insight"><div class="print-insight-label">Días con oración</div><div class="print-insight-value">✅ ${data.filter(e=>e.prayer>0).length} de ${total}</div></div><div class="print-insight"><div class="print-insight-label">AT vs NT</div><div class="print-insight-value">📜 ${ot} AT · ${nt} NT</div></div><div class="print-insight"><div class="print-insight-label">Libros distintos</div><div class="print-insight-value">📚 ${uniqueBooks}</div></div></div>${booksHtml}<div class="print-section" style="margin-top:1rem">registro diario</div><table class="pt"><thead><tr><th>Fecha</th><th>Leyó</th><th>Pasajes</th><th>Oración</th><th>Relativo</th></tr></thead><tbody>${rows}</tbody></table><div class="print-footer">Generado el ${new Date().toLocaleDateString('es-CO',{day:'numeric',month:'long',year:'numeric'})} · Dashboard Devocional</div>`;
+  closeExportModal();window.print();
+}
+window.addEventListener('afterprint',()=>{document.getElementById('print-view').innerHTML='';});
+
+/* ════════════════════════════════════════
+   TOAST
+════════════════════════════════════════ */
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
+
+/* ════════════════════════════════════════
+   BOOT
+════════════════════════════════════════ */
+(function boot(){
+  const pinSet = localStorage.getItem(K_PIN_SET);
+  if(!pinSet) { initSetup(); }
+  else { initLock(); }
+})();
+
+/* ════════════════════════════════════════
+   SERVICE WORKER
+════════════════════════════════════════ */
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+}
+</script>
+
+<style>
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+</style>
+</body>
+</html>
