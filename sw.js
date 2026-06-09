@@ -1,5 +1,12 @@
 const CACHE = 'devocional-v1';
-const ASSETS = ['/', '/index.html', '/manifest.json'];
+// const ASSETS = ['/', '/index.html', '/manifest.json'];
+const ASSETS = [
+  '/Devocional/',
+  '/Devocional/index.html',
+  '/Devocional/manifest.json',
+  '/Devocional/icon-192.png',
+  '/Devocional/icon-512.png'
+];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
