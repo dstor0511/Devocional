@@ -281,7 +281,12 @@ button.secondary:active{opacity:.8}
           <button class="note-tab" id="tab-preview" onclick="switchNoteTab('preview')">preview</button>
         </div>
       </div>
-      <textarea id="f-note" placeholder="¿Qué te habló Dios hoy? Puedes usar **negrita**, *cursiva*, # títulos, - listas..."></textarea>
+      <textarea id="f-note" placeholder="¿Qué te habló Dios hoy? Puedes usar **negrita**, *cursiva*, # títulos, - listas...">
+        ## 🙏 ¿Qué aprendí sobre Dios?\n\n
+        ## 👤 ¿Qué aprendí sobre mí?\n\n
+        ## ✅ ¿Qué debo hacer?\n\n
+        ## 🔄 ¿Qué debo cambiar?\n\n
+      </textarea>
       <div class="note-preview" id="note-preview-box"></div>
     </div>
   </div>
@@ -543,7 +548,7 @@ async function addEntry(){
   entries.sort((a,b)=>b.date.localeCompare(a.date));
   document.getElementById('f-prayer').value=0;
   document.getElementById('f-read').checked=true;
-  document.getElementById('f-note').value='';
+  document.getElementById('f-note').value='## 🙏 ¿Qué aprendí sobre Dios?\n\n## 👤 ¿Qué aprendí sobre mí?\n\n## ✅ ¿Qué debo hacer?\n\n## 🔄 ¿Qué debo cambiar?';
   document.getElementById('note-preview-box').classList.remove('visible');
   document.getElementById('f-note').style.display='';
   document.getElementById('tab-write').classList.add('active');
