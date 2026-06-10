@@ -1,4 +1,4 @@
-const CACHE  = 'devocional-v3';
+const CACHE  = 'devocional-v4';
 const ASSETS = [
   '/devocional/',
   '/devocional/index.html',
