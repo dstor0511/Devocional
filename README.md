@@ -1,6 +1,6 @@
 # 📖 Dashboard Devocional
 
-PWA personal para seguimiento de lectura bíblica, oración y reflexión espiritual diaria. Funciona como app nativa en iPhone, **sin backend, sin cuenta, sin servidores**.
+PWA personal para seguimiento de lectura bíblica, oración y reflexión espiritual diaria. Funciona como app nativa en iPhone, sin backend, sin cuenta, sin servidores.
 
 ---
 
@@ -101,4 +101,4 @@ Este proyecto es de uso personal. Cada persona que acceda al link tiene una sesi
 
 ---
 
-*Construido con ayuda de Claude · Anthropic*
+*Construido con Claude · Anthropic*

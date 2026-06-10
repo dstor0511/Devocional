@@ -1,0 +1,47 @@
+/* ── PIN: setup & lock screens, numpad, dots ── */
+
+.screen { display: none; min-height: 100vh; }
+.screen.active { display: flex; }
+
+#screen-lock,
+#screen-setup {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: calc(var(--safe-top) + 2rem) 1.5rem calc(var(--safe-bottom) + 2rem);
+  gap: 2rem;
+}
+
+.pin-logo    { font-size: 3rem; line-height: 1; }
+.pin-title   { font-size: 1.2rem; font-weight: 500; text-align: center; }
+.pin-subtitle{ font-size: .875rem; color: var(--text2); text-align: center; margin-top: -1.5rem; }
+
+/* dots */
+.pin-dots { display: flex; gap: 16px; align-items: center; justify-content: center; height: 32px; }
+.pin-dot  { width: 14px; height: 14px; border-radius: 50%; background: var(--bg3); border: 2px solid var(--border); transition: background .15s, border-color .15s; }
+.pin-dot.filled  { background: var(--accent); border-color: var(--accent); }
+.pin-dot.error   { background: var(--red);    border-color: var(--red); }
+.pin-dot.success { background: var(--green);  border-color: var(--green); }
+
+/* numpad */
+.numpad { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; width: 100%; max-width: 280px; }
+.num-btn {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  color: var(--text);
+  font-size: 1.4rem;
+  font-family: inherit;
+  font-weight: 500;
+  height: 70px;
+  cursor: pointer;
+  transition: background .1s, transform .1s;
+  display: flex; align-items: center; justify-content: center;
+}
+.num-btn:active { background: var(--bg3); transform: scale(.95); }
+.num-btn.del    { font-size: 1.2rem; color: var(--text2); }
+.num-btn.empty  { background: none; border: none; cursor: default; }
+
+.pin-error   { font-size: .8rem; color: var(--red);   text-align: center; min-height: 20px; }
+.lockout-msg { font-size: .875rem; color: var(--amber); text-align: center; }
+.pin-link    { font-size: .8rem; color: var(--text3); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
