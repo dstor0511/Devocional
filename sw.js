@@ -1,11 +1,22 @@
-const CACHE = 'devocional-v1';
-// const ASSETS = ['/', '/index.html', '/manifest.json'];
+const CACHE  = 'devocional-v2';
 const ASSETS = [
-  '/Devocional/',
-  '/Devocional/index.html',
-  '/Devocional/manifest.json',
-  '/Devocional/icon-192.png',
-  '/Devocional/icon-512.png'
+  '/devocional/',
+  '/devocional/index.html',
+  '/devocional/manifest.json',
+  '/devocional/icon-192.png',
+  '/devocional/icon-512.png',
+  '/devocional/css/base.css',
+  '/devocional/css/pin.css',
+  '/devocional/css/app.css',
+  '/devocional/css/print.css',
+  '/devocional/js/Markdown.js',
+  '/devocional/js/Crypto.js',
+  '/devocional/js/Bible.js',
+  '/devocional/js/DataStore.js',
+  '/devocional/js/UI.js',
+  '/devocional/js/Pin.js',
+  '/devocional/js/Export.js',
+  '/devocional/js/App.js'
 ];
 
 self.addEventListener('install', e => {
@@ -14,9 +25,11 @@ self.addEventListener('install', e => {
 });
 
 self.addEventListener('activate', e => {
-  e.waitUntil(caches.keys().then(keys =>
-    Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
-  ));
+  e.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
+    )
+  );
   self.clients.claim();
 });
 

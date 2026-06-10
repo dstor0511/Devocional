@@ -1,0 +1,46 @@
+/* ── BASE: variables, reset, scrollbar, animations ── */
+
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #0d1117;
+  --bg2:      #161b22;
+  --bg3:      #21262d;
+  --border:   #30363d;
+  --text:     #e6edf3;
+  --text2:    #8b949e;
+  --text3:    #6e7681;
+  --accent:   #58a6ff;
+  --green:    #3fb950;
+  --green-bg: #1a2d1a;
+  --red:      #f85149;
+  --amber:    #d29922;
+  --amber-bg: #2d1f00;
+  --blue-bg:  #1a2535;
+  --purple:   #bc8cff;
+  --purple-bg:#1e1535;
+  --radius:   8px;
+  --radius-lg:12px;
+  --safe-top:    env(safe-area-inset-top);
+  --safe-bottom: env(safe-area-inset-bottom);
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Ubuntu", -apple-system, sans-serif;
+  min-height: 100vh;
+  -webkit-tap-highlight-color: transparent;
+  overflow-x: hidden;
+}
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  20%      { transform: translateX(-8px); }
+  40%      { transform: translateX(8px); }
+  60%      { transform: translateX(-5px); }
+  80%      { transform: translateX(5px); }
+}
