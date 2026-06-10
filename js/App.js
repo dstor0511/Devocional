@@ -24,7 +24,6 @@ class App {
       this.pin.initLock();
     }
     this.#registerServiceWorker();
-    this.#registerPrintCleanup();
   }
 
   /* ── CALLED AFTER SUCCESSFUL UNLOCK OR SETUP ── */
@@ -106,12 +105,6 @@ class App {
         navigator.serviceWorker.register('sw.js').catch(() => {})
       );
     }
-  }
-
-  #registerPrintCleanup() {
-    window.addEventListener('afterprint', () => {
-      document.getElementById('print-view').innerHTML = '';
-    });
   }
 }
 

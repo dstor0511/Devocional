@@ -1,71 +1,14 @@
-/* ── PRINT: PDF report styles ── */
-/* Android Chrome fix: explicit .active/.open overrides */
-
-.print-view { display: none; }
+/* ── PRINT ──
+ * The PDF report is now generated inside a self-contained iframe
+ * (see js/Export.js) with its own embedded styles. This avoids the
+ * Android Chrome blank-page bug caused by @media print display toggling.
+ *
+ * This file only needs to hide the screen UI if the user manually
+ * triggers Ctrl/Cmd+P on the main document (edge case).
+ */
 
 @media print {
-  /* hide everything — including active/open state classes (Android Chrome fix) */
-  .screen,
-  .screen.active,
-  .modal-overlay,
-  .modal-overlay.open,
-  .toast { display: none !important; }
-
-  .print-view {
-    display: block !important;
-    padding: 1.2cm 1.8cm;
-    font-family: "Ubuntu", Georgia, serif;
-    color: #111;
-    background: white;
-  }
-
-  /* header */
-  .print-header { border-bottom: 2px solid #111; padding-bottom: .6rem; margin-bottom: 1.2rem; }
-  .print-header h1 { font-size: 1.5rem; font-weight: 700; }
-  .print-header p  { font-size: .8rem; color: #555; margin-top: 3px; }
-
-  /* summary stats */
-  .print-stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-bottom: 1.2rem; }
-  .print-stat  { border: 1px solid #ccc; border-radius: 6px; padding: .65rem; text-align: center; }
-  .print-stat-label { font-size: 9px; color: #666; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 3px; }
-  .print-stat-value { font-size: 1.4rem; font-weight: 700; }
-  .print-stat-sub   { font-size: 9px; color: #999; margin-top: 2px; }
-
-  /* section titles */
-  .print-section { font-size: 10px; text-transform: uppercase; letter-spacing: .07em; color: #888; margin: 1rem 0 6px; }
-
-  /* insight cards */
-  .print-insights { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: .8rem; }
-  .print-insight  { border: 1px solid #ddd; border-radius: 5px; padding: .6rem; }
-  .print-insight-label { font-size: 9px; color: #888; margin-bottom: 2px; }
-  .print-insight-value { font-size: 12px; font-weight: 600; }
-
-  /* daily table */
-  table.pt { width: 100%; border-collapse: collapse; font-size: 11px; }
-  table.pt th { background: #f0f0f0; color: #333; padding: 6px 10px; text-align: left; font-size: 10px; font-weight: 600; border-bottom: 1px solid #ccc; }
-  table.pt td { padding: 6px 10px; border-bottom: 1px solid #eee; vertical-align: top; }
-  table.pt tr.alt td { background: #f9f9f9; }
-
-  /* cell color helpers */
-  .p-yes  { color: #166534; font-weight: 500; }
-  .p-no   { color: #999; }
-  .p-pray { color: #1e3a5f; font-weight: 500; }
-  .p-book { color: #4c1d95; }
-
-  /* mini bar chart */
-  .p-bar-wrap { display: flex; align-items: center; gap: 4px; }
-  .p-bar      { height: 6px; background: #e0e7ff; border-radius: 3px; display: inline-block; width: 60px; }
-  .p-bar-fill { height: 6px; background: #4f46e5; border-radius: 3px; display: inline-block; }
-
-  /* top books */
-  .print-books      { display: grid; grid-template-columns: repeat(3,1fr); gap: 6px; }
-  .print-book-item  { border: 1px solid #eee; border-radius: 4px; padding: 5px 8px; display: flex; justify-content: space-between; }
-  .print-book-name  { font-size: 11px; font-weight: 500; }
-  .print-book-count { font-size: 10px; color: #4f46e5; font-weight: 600; }
-
-  /* inline note in table */
-  .print-note { font-size: 10px; color: #444; border-left: 3px solid #ccc; padding-left: 8px; margin-top: 4px; line-height: 1.5; }
-
-  /* footer */
-  .print-footer { margin-top: 1.5rem; font-size: 9px; color: #bbb; border-top: 1px solid #eee; padding-top: .4rem; }
+  body > .screen,
+  body > .modal-overlay,
+  body > .toast { display: none !important; }
 }
