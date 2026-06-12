@@ -9,10 +9,7 @@ class DataStore {
   static #KEY_DATA     = 'dev_data_enc';
 
   static NOTE_TEMPLATE =
-    '## 🙏 ¿Qué aprendí sobre Dios?\n\n' +
-    '## 👤 ¿Qué aprendí sobre mí?\n\n'    +
-    '## ✅ ¿Qué debo hacer?\n\n'           +
-    '## 🔄 ¿Qué debo cambiar?';
+    '';
 
   #crypto;
 
