@@ -8,8 +8,7 @@ class DataStore {
   static #KEY_PIN_SET  = 'dev_pin_set';
   static #KEY_DATA     = 'dev_data_enc';
 
-  static NOTE_TEMPLATE =
-    '';
+  static NOTE_TEMPLATE = '';
 
   #crypto;
 
